@@ -8,7 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 type ResponseRegister = {
   success: boolean;
-  message: string;
+  message: string | string[];
   data?: {
     id: number;
     fullname: string;
@@ -19,17 +19,28 @@ type ResponseRegister = {
 
 export default function RegisterPage() {
   const router = useRouter();
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, "");
 
   const [fullname, setFullname] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("USER");
 
+  function getMessage(message?: string | string[]) {
+    if (Array.isArray(message)) return message.join(", ");
+    return message;
+  }
+
   async function handleRegister(e: FormEvent) {
     e.preventDefault();
 
+    if (!baseUrl) {
+      toast.error("NEXT_PUBLIC_BASE_URL belum diset di Vercel");
+      return;
+    }
+
     try {
-      const url = `${process.env.NEXT_PUBLIC_BASE_URL}/auth/register`;
+      const url = `${baseUrl}/auth/register`;
 
       const response = await fetch(url, {
         method: "POST",
@@ -44,10 +55,13 @@ export default function RegisterPage() {
         }),
       });
 
-      const data: ResponseRegister = await response.json();
+      const data = (await response.json().catch(() => ({
+        success: false,
+        message: "Response server tidak valid",
+      }))) as ResponseRegister;
 
       if (!response.ok || !data.success) {
-        toast.error(data.message || "Register gagal");
+        toast.error(getMessage(data.message) || "Register gagal");
         return;
       }
 
@@ -55,7 +69,7 @@ export default function RegisterPage() {
 
       const userRole = data.data?.role || role;
 
-      let redirectPath = "/login";
+      let redirectPath = "/loginPage";
 
       if (userRole === "ADMIN") {
         redirectPath = "/admin/dashboard";
@@ -68,7 +82,7 @@ export default function RegisterPage() {
       setTimeout(() => {
         router.push(redirectPath);
       }, 800);
-    } catch (error) {
+    } catch {
       toast.error("Terjadi kesalahan saat register");
     }
   }

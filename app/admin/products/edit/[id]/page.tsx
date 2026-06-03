@@ -61,20 +61,23 @@ export default function EditProductPage() {
     try {
       setLoading(true);
 
-      // 1. UPDATE DATA PRODUK (TEXT)
+      const formData = new FormData();
+      formData.append("name", product.name);
+      formData.append("price", String(product.price));
+      formData.append("stock", String(product.stock));
+      formData.append("category", product.category);
+      formData.append("description", product.description);
+
+      if (imageFile) {
+        formData.append("image", imageFile);
+      }
+
       const res = await fetch(`${BASE_URL}/products/${id}`, {
         method: "PATCH",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          name: product.name,
-          price: Number(product.price),
-          stock: Number(product.stock),
-          category: product.category,
-          description: product.description,
-        }),
+        body: formData,
       });
 
       const updated = await res.json();
@@ -86,35 +89,6 @@ export default function EditProductPage() {
 
       setProduct(updated);
       setPreview(updated.imageUrl);
-
-      // 2. UPLOAD IMAGE (WAJIB "image")
-      if (imageFile) {
-        const formData = new FormData();
-        formData.append("image", imageFile); // INI WAJIB SESUAI BACKEND
-
-        const uploadRes = await fetch(`${BASE_URL}/products/${id}/photo`, {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        });
-
-        const uploadData = await uploadRes.json();
-
-        if (!uploadRes.ok) {
-          console.log("UPLOAD ERROR:", uploadData);
-          alert(uploadData?.message || "Upload gagal");
-          return;
-        }
-
-        const newImageUrl = uploadData.data.imageUrl;
-
-        setPreview(newImageUrl);
-        setProduct((prev) =>
-          prev ? { ...prev, imageUrl: newImageUrl } : prev,
-        );
-      }
 
       router.push("/admin/products");
     } catch (err) {
