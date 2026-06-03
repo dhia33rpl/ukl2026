@@ -1,7 +1,5 @@
 
 
-import Footer from "@/components/Footer";
-import Navbar from "@/components/Navbar";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Stethoscope,
@@ -44,7 +42,6 @@ export default function Dashboard() {
 
   return (
     <div>
-      <Navbar />
       <div className="max-w-6xl mx-auto p-6">
         {/* Hero */}
         <div className="bg-green-600 text-white p-6 rounded-2xl flex justify-between items-center">
@@ -58,7 +55,7 @@ export default function Dashboard() {
               dalam satu platform.
             </p>
 
-            <Link href="/register">
+            <Link href="/loginPage">
               <button className="bg-white text-green-600 px-4 py-1 rounded-lg text-sm">
                 Mulai Sekarang
               </button>
@@ -108,13 +105,13 @@ export default function Dashboard() {
             Produk makanan, vitamin, grooming hingga pet hotel.
           </p>
 
-          <Link href="/register">
+          <Link href="/loginPage">
             <button className="bg-white text-green-600 px-4 py-1 rounded-lg text-sm">
               Mulai Sekarang
             </button>
           </Link>
         </div>
-<Footer />
+
       </div>
     </div>
   );
