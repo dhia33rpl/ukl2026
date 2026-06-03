@@ -12,19 +12,15 @@ export default function DropUserPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const deleteUser = async () => {
-    if (!userId) {
-      setError("User ID tidak ditemukan");
-      return;
-    }
-
+  const deleteUser = async (id: string) => {
     try {
       setLoading(true);
 
-      const token = localStorage.getItem("token");
+      const token =
+        typeof window !== "undefined" ? localStorage.getItem("token") : "";
 
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/users/${userId}`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/users/${id}`,
         {
           method: "DELETE",
           headers: {
@@ -49,14 +45,17 @@ export default function DropUserPage() {
   };
 
   useEffect(() => {
+    if (!userId) return;
+
+    // semua browser logic dipindah ke dalam effect (AMAN)
     const confirmed = window.confirm("Yakin ingin menghapus user ini?");
 
     if (confirmed) {
-      deleteUser();
+      deleteUser(userId);
     } else {
       router.push("/admin/users");
     }
-  }, []);
+  }, [userId]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-100">
